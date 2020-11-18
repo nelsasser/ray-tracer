@@ -15,7 +15,7 @@ public:
 
 	void use(); // Tells the OpenGL state machine to use (this)Shader
 
-	// Shader uniform setting functions (sets uniforms on the shader object stored in GPU memory)
+				// Shader uniform setting functions (sets uniforms on the shader object stored in GPU memory)
 	void setBool(const std::string &name, bool value) const; // the addition of const means the function cannot modify the state of the (this) object
 	void setInt(const std::string &name, int value) const;
 	void setFloat(const std::string &name, float value) const;

@@ -1,3 +1,6 @@
+Debug/
+OpenGL\ Raytracer.sln
+OpenGL\ Raytracer/Debug/
 # ignore executables
 *.exe
 

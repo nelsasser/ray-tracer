@@ -3,8 +3,8 @@
 #include <fstream>
 #include <sstream>
 
-#include<glad\glad.h>
-#include<glm\glm.hpp>
+#include <glad\glad.h>
+#include <glm\glm.hpp>
 
 // Shader handles the loading-in and compilation of shader source code (written in GLSL). This is essentially a wrapper class around the shader object stored in GPU memory
 // See relevant source file for function descriptions
@@ -15,7 +15,7 @@ public:
 
 	void use(); // Tells the OpenGL state machine to use (this)Shader
 
-	// Shader uniform setting functions (sets uniforms on the shader object stored in GPU memory)
+				// Shader uniform setting functions (sets uniforms on the shader object stored in GPU memory)
 	void setBool(const std::string &name, bool value) const; // the addition of const means the function cannot modify the state of the (this) object
 	void setInt(const std::string &name, int value) const;
 	void setFloat(const std::string &name, float value) const;
@@ -27,8 +27,9 @@ public:
 
 	void setDouble(const std::string &name, double value) const;
 
-private:
 	unsigned int ID; // Shader program ID for referencing object stored on video card
+
+private:
 
 	unsigned int compShader; // Compute shader ID
 
