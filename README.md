@@ -11,3 +11,7 @@ Rendered scenes are static images (not real-time)
 - Compute shader sends data back to CPU process which saves the data to an image
 
 Credit: Seth implemented most of the GPU related code and made the shaders, Nick implemented .obj file loading and CPU rendering.
+
+
+![Example GPU render with deep reflections and varying object normals.](/final.png)
+Example GPU render with deep reflections and varying object normals.
