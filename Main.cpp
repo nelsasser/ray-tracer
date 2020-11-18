@@ -12,8 +12,6 @@
  */
 
 #define _CRT_SECURE_NO_WARNINGS
-
-
 #include <string>
 #include <cmath>
 #include <iostream>
@@ -31,7 +29,6 @@
 #include "lodepng.h"
 #include "CompShader.h"
 #include "OBJLoader.h"
-
 
 bool CPU = false;
 
@@ -516,7 +513,6 @@ std::vector<glm::vec4> computeMeshData(std::vector<glm::vec3> vertexData, std::v
 std::vector<glm::vec4> computeNormalData(std::vector<glm::vec3> normalData, std::vector<glm::vec3> normalIndexData) {
 	std::vector<glm::vec4> data;
 
-	
 	int minIndex = normalIndexData[0].x;
 	int maxIndex = normalIndexData[0].x;
 
@@ -527,7 +523,6 @@ std::vector<glm::vec4> computeNormalData(std::vector<glm::vec3> normalData, std:
 		}
 	}
 	
-
 	for(int i = 0; i < normalIndexData.size(); i++) {
 		glm::vec3 v1 = normalData[(int)normalIndexData[i].x];
 		glm::vec3 v2 = normalData[(int)normalIndexData[i].y];

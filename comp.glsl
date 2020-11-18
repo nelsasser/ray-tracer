@@ -23,7 +23,6 @@ uniform vec3 camLight;
 
 uniform int rayBounces;
 uniform vec3 bgColor;
-
 uniform int numShapeVerts;
 uniform int numNormals;
 
@@ -128,8 +127,7 @@ vec3 castRay(vec3 orig, vec3 dir, out vec3 interVec, out vec3 normal)
 		{
 			////////////////////////////////////////////////////////////////////////////////////////
 			// HERE we have intersection (t,u,v) and front facing triangle, DO LIGHTING!!!!!!!!!!!!!
-			////////////////////////////////////////////////////////////////////////////////////////
-			
+			////////////////////////////////////////////////////////////////////////////////////////		
 			vec3 n1 = u*data2.normals[i_closest + 1].xyz;
 			vec3 n2 = v*data2.normals[i_closest + 2].xyz;
 			vec3 n3 = (1-u-v)*data2.normals[i_closest].xyz;
