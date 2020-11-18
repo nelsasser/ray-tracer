@@ -1,3 +1,4 @@
+#define _CRT_SECURE_NO_WARNINGS
 #include "OBJLoader.h"
 #include <fstream>
 #include <string>
@@ -50,8 +51,8 @@ std::tuple<std::vector<glm::vec3>, std::vector<glm::vec2>, std::vector<glm::vec3
 				normals.push_back(normal);
 			} else if(strcmp(linehead, "f") == 0) { //index data
 													//get all index values (could be more than 3 vertices per face)
-				char dat[128];
-				fgets(dat, 128, file);
+				char dat[1024];
+				fgets(dat, 1024, file);
 				std::string data(dat);
 				std::vector<std::string> tokens;
 				std::istringstream ss(data.substr(1));
@@ -63,8 +64,8 @@ std::tuple<std::vector<glm::vec3>, std::vector<glm::vec2>, std::vector<glm::vec3
 
 				//hello memory leaks
 				int *vind = (int *)malloc(sizeof * vind * tokens.size());
-				int *uvind = (int *)malloc(sizeof * vind * tokens.size());
-				int *nind = (int *)malloc(sizeof * vind * tokens.size());
+				int *uvind = (int *)malloc(sizeof * uvind * tokens.size());
+				int *nind = (int *)malloc(sizeof * nind * tokens.size());
 
 				std::vector<glm::vec3> faceVertices(tokens.size() - 2);
 				std::vector<glm::vec3> faceUVs(tokens.size() - 2);

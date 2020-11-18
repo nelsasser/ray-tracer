@@ -11,6 +11,7 @@
  * --------------------------------------------------------------------
  */
 
+#define _CRT_SECURE_NO_WARNINGS
 #include <string>
 #include <cmath>
 #include <iostream>
@@ -102,8 +103,8 @@ int main(void) {
 	std::tuple<std::vector<glm::vec3>, std::vector<glm::vec2>, std::vector<glm::vec3>, std::vector<glm::vec3>, std::vector<glm::vec3>, std::vector<glm::vec3>> objData = loader.loadObj(file);
 	std::vector<glm::vec3> vertexData = std::get<0>(objData);
 	std::vector<glm::vec3> indexData = std::get<3>(objData);
-	// std::vector<glm::vec3> normalData = std::get<2>(objData);
-	// std::vector<glm::vec3> normalIndexData = std::get<5>(objData);
+	std::vector<glm::vec3> normalData = std::get<2>(objData);
+	std::vector<glm::vec3> normalIndexData = std::get<5>(objData);
 
 	std::cout << "Done loading obj file" << std::endl;
 
@@ -112,9 +113,18 @@ int main(void) {
 	std::vector<glm::vec4> meshData = computeMeshData(vertexData, indexData);
 	std::cout << "Done generating mesh" << std::endl;
 
-	// std::cout << "Generating Normal Data" << std::endl;
-	// std::vector<glm::vec4> normals = computeNormalData(normalData, normalIndexData);
-	// std::cout << "Done generating Normal Data" << std::endl;
+	std::cout << "Generating Normal Data" << std::endl;
+	std::vector<glm::vec4> normals = computeNormalData(normalData, normalIndexData);
+	std::cout << "Done generating Normal Data" << std::endl;
+
+	// Load file and decode image.
+	std::vector<unsigned char> texture;
+	unsigned width, height;
+	unsigned tex_error = lodepng::decode(texture, width, height, "color.png");
+	if(tex_error != 0) {
+		std::cout << "error " << tex_error << ": " << lodepng_error_text(tex_error) << std::endl;
+		return 1;
+	}
 
 	// array of pixels we will output our render to
 	std::vector<unsigned char> output_pixels;
@@ -223,16 +233,24 @@ int main(void) {
 		glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
 
 		// // create SSBO to send vertex-normal data to compute shader
-		// GLuint ssbo2;
-		// glGenBuffers(1, &ssbo2);
-		// glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo2);
-		// glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(glm::vec3) * normals.size(), normals.data(),  GL_DYNAMIC_COPY);
-		// glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, ssbo2);
-		// glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo2); // bind
-		// glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0); // unbind
-		// glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
+		GLuint ssbo2;
+		glGenBuffers(1, &ssbo2);
+		glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo2);
+		glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(glm::vec4) * normals.size(), normals.data(),  GL_DYNAMIC_COPY);
+		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, ssbo2);
+		glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo2); // bind
+		glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0); // unbind
+		glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
 
-
+		glEnable(GL_TEXTURE_2D);
+		GLuint texID;
+		glGenTextures(1, &texID);
+		glBindTexture(GL_TEXTURE_2D, texID);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexImage2D(GL_TEXTURE_2D, 1, GL_RGBA32F, 1024, 1024, 0, GL_RGBA, GL_FLOAT, &texture[0]);
+		glBindImageTexture(1, texID, 1, GL_FALSE, 1, GL_READ_ONLY, GL_RGBA32F);
+		glActiveTexture(GL_TEXTURE0 + 1);
 		compShader.use();
 
 		// set compute shader uniforms
@@ -247,6 +265,7 @@ int main(void) {
 		compShader.setFloat3("camLight", cam.lightPos);
 		glDispatchCompute(width, height, 1);
 		glFinish();
+		glActiveTexture(GL_TEXTURE0);
 
 		// make sure writing to image has finished before read
 		glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
@@ -494,6 +513,16 @@ std::vector<glm::vec4> computeMeshData(std::vector<glm::vec3> vertexData, std::v
 std::vector<glm::vec4> computeNormalData(std::vector<glm::vec3> normalData, std::vector<glm::vec3> normalIndexData) {
 	std::vector<glm::vec4> data;
 
+	int minIndex = normalIndexData[0].x;
+	int maxIndex = normalIndexData[0].x;
+
+	for(int i = 0; i < normalIndexData.size(); i++) {
+		for(int j = 0; j < 3; j++) {
+			minIndex = ((normalIndexData[i][j] < minIndex) ? normalIndexData[i][j] : minIndex);
+			maxIndex = ((normalIndexData[i][j] > maxIndex) ? normalIndexData[i][j] : maxIndex);
+		}
+	}
+	
 	for(int i = 0; i < normalIndexData.size(); i++) {
 		glm::vec3 v1 = normalData[(int)normalIndexData[i].x];
 		glm::vec3 v2 = normalData[(int)normalIndexData[i].y];

@@ -7,10 +7,10 @@ layout (std430, binding = 0) buffer shader_data {
 	vec4 shape[];
 } data;
 
-// // for normals // broken!!!
-// layout (std430, binding = 1) buffer shader_data2 {
-// 	vec3 normals[];
-// } data2;
+// for normals // broken!!!
+layout (std430, binding = 1) buffer shader_data2 {
+	vec4 normals[];
+} data2;
 
 const float maxDist = 1000000;
 const float epsilon = 0.00001;
@@ -24,6 +24,7 @@ uniform vec3 camLight;
 uniform int rayBounces;
 uniform vec3 bgColor;
 uniform int numShapeVerts;
+uniform int numNormals;
 
 vec3 lightSource1 = vec3(8,6,0);
 
@@ -126,9 +127,13 @@ vec3 castRay(vec3 orig, vec3 dir, out vec3 interVec, out vec3 normal)
 		{
 			////////////////////////////////////////////////////////////////////////////////////////
 			// HERE we have intersection (t,u,v) and front facing triangle, DO LIGHTING!!!!!!!!!!!!!
-			////////////////////////////////////////////////////////////////////////////////////////
-			// vec3 normal = u*data2.normals[v0] + v*data2.normals[v1] + (1-u-v)*data2.normals[v2];
-			normal = normalize(cross( (v1-v0),(v2-v1) ));
+			////////////////////////////////////////////////////////////////////////////////////////		
+			vec3 n1 = u*data2.normals[i_closest + 1].xyz;
+			vec3 n2 = v*data2.normals[i_closest + 2].xyz;
+			vec3 n3 = (1-u-v)*data2.normals[i_closest].xyz;
+			normal = normalize(n1 + n2 + n3 /* + cross( (v1-v0),(v2-v1) ) */);
+			
+			//normal = normalize(cross( (v1-v0),(v2-v1) ));
 			return invSqrLight(interVec, dir, normal);
 		}
 		else return vec3(0,0,0);
